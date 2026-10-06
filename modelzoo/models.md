@@ -1,0 +1,2 @@
+g1_gaze_64000env_10h: AME2-G1-Gaze teacher, stability check. 64000 envs, 2400 iter.
+WandB report: https://forge.coreweave.com/wandb/zitac/ame2_os/reports/g1_gaze_64000env_10h--VmlldzoxODA2MzM2Mg?accessToken=opbrkcokw5i2scft1uzi0t4nn0v408n7zoqdbcsarbqu3jphs2b7lz9v3os4yfu5

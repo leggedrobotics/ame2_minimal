@@ -65,6 +65,7 @@ RUN=(docker run --name "$NAME" --gpus "\"device=$GPUS\"" --network host
     -e PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
     -v "$ROOT/ame2:/workspace/ame2-minimal/ame2:rw"
     -v "$ROOT/rsl_rl:/workspace/ame2-minimal/rsl_rl:rw"
+    -v "$ROOT/modelzoo:/workspace/ame2-minimal/modelzoo:ro"
     -v ame2-cache-kit:/isaac-sim/kit/cache
     -v ame2-cache-ov:/root/.cache/ov
     -v ame2-cache-pip:/root/.cache/pip

@@ -22,7 +22,6 @@ The codebase is mostly vibecoded, and many IsaacLab know-hows are from Mayank Mi
 
 > **No feature contribution:** It shall be half-archived as a reference to a finished work.
 
-// todo: curve, and video, and teacher student cpt
 
 ## Setup
 
@@ -44,15 +43,23 @@ The codebase is mostly vibecoded, and many IsaacLab know-hows are from Mayank Mi
 
 ## Current features:
 - G1 teacher training (AME-2, optional TAGA-style active gaze, multi-headed PPO, bf16 optimization, muon optimizer)
-- Neural Mapping in the loop (Mid360 lidar) -- *unavailable until the next paper release happening soon (the mapping model is not included)*
-- G1 student training (LSIO + AME-2, distilled + RL from a teacher JIT) -- *unavailable until the next paper release (requires the neural mapping model)*
+- ~~Neural Mapping in the loop (Mid360 lidar) -- *unavailable until the next paper release happening soon (the mapping model is not included)*~~
+- ~~G1 student training (LSIO + AME-2, distilled + RL from a teacher JIT) -- *unavailable until the next paper release (requires the neural mapping model)*~~
 
 - Optional new features:
     - torso, arm, and foot shaping for humanoids, not tuned. The original paper only covers legs.
 
+## Existing checkpoints and logs:
+- Check `modelzoo/`. Will add new runs in the future.
+
+## Release Plans:
+- Lidar Neural Map checkpoint
+- Tron1 Env and Depth Neural Map
+- Neural Map Training Code
+
 ## Notes:
 - Some trivial details might not be perfectly aligned between IsaacLab and legged gym. Some might be improved.
-- The results for humanoids do not represent the limits of our method (contributions mostly on generalization and neural mapping) -- there is no targetted tuning or style optimization, especially for G1.
+- The results for humanoids do not represent the limits of our method (contributions mostly on generalization and neural mapping) -- there is no targetted performance tuning or style optimization, especially for G1.
 - MDP setup shall easily transfer to other robots.
 
 ## License

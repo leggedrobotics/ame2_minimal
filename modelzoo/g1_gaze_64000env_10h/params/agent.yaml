@@ -1,0 +1,65 @@
+seed: 42
+device: cuda:0
+num_steps_per_env: 24
+max_iterations: 3000
+empirical_normalization: null
+obs_groups:
+  actor:
+  - teacher_mapping
+  - teacher_prop
+  critic:
+  - critic
+clip_actions: null
+save_interval: 300
+experiment_name: ame2_gaze
+run_name: g1_gaze_4x16k
+logger: wandb
+neptune_project: ame2_os
+wandb_project: ame2_os
+resume: false
+load_run: .*
+load_checkpoint: model_.*.pt
+torch_compile_mode: null
+class_name: OnPolicyRunner
+actor:
+  class_name: AME2GazeModel
+  num_heads: 32
+  crop_x: 12
+  crop_y: 10
+  roi_coef: 0.01
+  roi_margin: 0.45
+  stochastic: true
+  init_noise_std: 1.0
+  noise_std_type: log
+critic:
+  class_name: MoEModel
+  num_experts: 16
+  stochastic: false
+  init_noise_std: 1.0
+  noise_std_type: log
+algorithm:
+  class_name: PPO
+  optimizer: muon
+  use_mixed_precision: true
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 0.001
+  schedule: adaptive
+  gamma: 0.99
+  lam: 0.95
+  entropy_coef: 0.004
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  normalize_advantage_per_mini_batch: false
+  ent_coef_decay: 0.9999
+  min_ent_coef: 0.001
+  renorm_max_value_loss: 100.0
+  rnd_cfg: null
+  symmetry_cfg:
+    use_data_augmentation: true
+    use_mirror_loss: false
+    data_augmentation_func: ame2.tasks.mdp.symmetry:ame2_g1_symmetry_augmentation
+    for_critic_only: true
