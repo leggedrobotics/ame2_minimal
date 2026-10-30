@@ -53,8 +53,8 @@ The codebase is mostly vibecoded, and many IsaacLab know-hows are from Mayank Mi
 - Check `modelzoo/`. Will add new runs in the future.
 
 ## Release Plans:
+- Bug fix: https://github.com/leggedrobotics/ame2_minimal/issues/3 
 - Lidar Neural Map checkpoint
-- Tron1 Env and Depth Neural Map
 - Neural Map Training Code
 
 ## Notes:
