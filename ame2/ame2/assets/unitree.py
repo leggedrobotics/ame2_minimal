@@ -9,6 +9,8 @@ from isaaclab.assets.articulation import ArticulationCfg
 from ame2.assets import ISAAC_ASSET_DIR
 
 
+# NOTE: due to historical reasons this codebase used a simplified foot mesh and 50 Nm ankle torque limits.
+# For ideal sim-to-real transfer, this should be changed to a downsampled hull mesh and 35 Nm limits or a parallel model.
 G1_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
         usd_path=f"{ISAAC_ASSET_DIR}/g1_lidar/g1_lidar.usd",

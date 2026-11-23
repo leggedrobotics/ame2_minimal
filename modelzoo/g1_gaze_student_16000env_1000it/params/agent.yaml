@@ -1,0 +1,72 @@
+seed: 42
+device: cuda:0
+num_steps_per_env: 24
+max_iterations: 1000
+empirical_normalization: null
+obs_groups:
+  actor:
+  - neural_map
+  - student_prop_hist
+  - student_cmds
+  critic:
+  - critic
+clip_actions: null
+save_interval: 250
+experiment_name: ame2_g1_gaze_stud
+run_name: g1_gaze_stud_16000env_1000it
+logger: wandb
+neptune_project: ame2_os
+wandb_project: ame2_os
+resume: false
+load_run: .*
+load_checkpoint: model_.*.pt
+torch_compile_mode: null
+class_name: OnPolicyRunner
+actor:
+  class_name: rsl_rl.models.AME2_models:AME2GazeLSIOModel
+  num_heads: 32
+  crop_x: 12
+  crop_y: 10
+  roi_coef: 0.01
+  roi_margin: 0.45
+  stochastic: true
+  init_noise_std: 1.0
+  noise_std_type: log
+critic:
+  class_name: MoEModel
+  num_experts: 16
+  stochastic: false
+  init_noise_std: 1.0
+  noise_std_type: log
+algorithm:
+  class_name: rsl_rl.algorithms.ppo_il:PPO_IL
+  optimizer: muon
+  use_mixed_precision: true
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 0.001
+  schedule: adaptive
+  gamma: 0.99
+  lam: 0.95
+  entropy_coef: 0.004
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  normalize_advantage_per_mini_batch: false
+  ent_coef_decay: 0.9999
+  min_ent_coef: 0.0005
+  renorm_max_value_loss: 20.0
+  rnd_cfg: null
+  symmetry_cfg:
+    use_data_augmentation: true
+    use_mirror_loss: false
+    data_augmentation_func: ame2.tasks.mdp.symmetry:ame2_g1_symmetry_augmentation
+    for_critic_only: true
+  teacher_path: /workspace/ame2-minimal/ame2/ame2/NN_models/g1_gaze_teacher_isaaclab.jit
+  imitation_coef: 0.02
+  repr_coef: 0.2
+  rl_switch_point: 501
+  switched_lr: 1.0e-05
+  initial_lr: 0.001

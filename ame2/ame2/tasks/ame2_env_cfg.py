@@ -673,6 +673,9 @@ class Ame2EnvCfg_G1(ManagerBasedRLEnvCfg):
         # general settings
         self.decimation = 4
         self.episode_length_s = 16.0
+        # the episode end is the goal-reaching deadline (critic sees time left, tracking rewards are gated on it):
+        # a true terminal, so no r + gamma * V bootstrap at the timeout
+        self.is_finite_horizon = True
         # simulation settings
         self.sim.dt = 0.005
         self.sim.render_interval = self.decimation
@@ -777,6 +780,8 @@ class Ame2EnvCfg_G1_Gaze_Student(Ame2EnvCfg_G1):
             prim_path="{ENV_REGEX_NS}/Robot/mid360_link",
             update_period=1.0 / 10.0,
             mesh_prim_paths=["/World/ground"],
+            self_occlusion=True,  # drop rays hitting the robot's own links (deploy self-body filter)
+            min_range=0.5,  # drop returns closer than 0.5 m (deploy near-range filter)
         )
         # 2. Livox neural map (10 Hz accumulate, per-policy-step base query).
         self.scene.neural_map = LivoxNeuralMapSensorCfg(
@@ -836,6 +841,8 @@ class Ame2EnvCfg_G1_Gaze_Student_PLAY(Ame2EnvCfg_G1_PLAY):
             update_period=1.0 / 10.0,  # one 20k-ray window per real Mid360 scan
             mesh_prim_paths=["/World/ground"],
             keep_world_ray_buffers=True,  # --viz_lidar buffers; play-scale env counts only
+            self_occlusion=True,
+            min_range=0.5,
         )
         self.scene.neural_map = LivoxNeuralMapSensorCfg(
             prim_path="{ENV_REGEX_NS}/Robot/base",

@@ -44,6 +44,7 @@ parser.add_argument("--no_markers", action="store_true", default=False, help="Di
 parser.add_argument("--terrain", type=str, default=None, help="Select a single sub-terrain by name from the FULL training generator (overrides the play cfg's hardcoded pick), e.g. climb_up, stones, gap.")
 parser.add_argument("--difficulty", type=float, default=None, help="Pin the terrain difficulty (sets difficulty_range=(d, d)).")
 parser.add_argument("--terrain_height", type=float, default=None, help="Pin the selected terrain's height (sets min_height = max_height, making it difficulty-independent); climb_up / climb_down style terrains only.")
+parser.add_argument("--record_nmap", type=str, default=None, help="Student tasks: record env 0's neural map vs. the true terrain to this .npz for --video_length steps, then exit (render with render_neural_map.py).")
 parser.add_argument("--goal_x_range", type=float, nargs=2, default=None, help="Override the selected terrain's goal-patch x sampling range (tile-local, m) so commanded goals land far across the terrain feature; requires --terrain.")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
@@ -628,6 +629,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     print("=" * 50 + "\n")
 
     timestep = 0
+    nmap_recorder = None
+    if args_cli.record_nmap:
+        from neural_map_recorder import NeuralMapRecorder
+        nmap_recorder = NeuralMapRecorder(env, args_cli.record_nmap)
     # per-video outcome tracking (env 0): reached the commanded goal at least
     # once, and no early termination (fall) during the recording
     video_reached = False
@@ -707,6 +712,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             obs, _, dones, _ = env.step(actions)
             # reset recurrent states for episodes that have terminated
             policy_nn.reset(dones)
+            if nmap_recorder is not None:
+                nmap_recorder.step(dones)
 
             # --- video outcome tracking (env 0) ---
             if args_cli.video:
@@ -995,9 +1002,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
             sim_time += dt
 
-        if args_cli.video:
+        if args_cli.video or nmap_recorder is not None:
             timestep += 1
-            # exit after recording one video
+            # exit after recording one video / neural-map clip
             if timestep == args_cli.video_length:
                 break
 
@@ -1010,6 +1017,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # machine-readable clip outcome (parsed by video-rendering drivers)
         print(f"[PLAY_RESULT] reached={video_reached} early_done={video_early_done} "
               f"success={video_reached and not video_early_done}")
+
+    if nmap_recorder is not None:
+        nmap_recorder.save()
 
     env.close()
 

@@ -307,10 +307,22 @@ class PPO_IL(PPO):
         actor: MLPModel = actor_class(obs, cfg["obs_groups"], "actor", env.num_actions, **cfg["actor"]).to(device)
         if cfg["algorithm"].pop("share_cnn_encoders", None):
             cfg["critic"]["cnns"] = actor.cnns
-        critic: MLPModel = critic_class(obs, cfg["obs_groups"], "critic", 1, **cfg["critic"]).to(device)
+        # Multi-head critic, as in PPO.construct_algorithm: one value head per reward term (default on, cfg
+        # ``multi_head_critic=False`` for a single head); the runner injects the per-term rewards.
+        use_mh = cfg["algorithm"].get("multi_head_critic", getattr(alg_class, "_multi_head_critic_default", True))
+        reward_manager = getattr(getattr(env, "unwrapped", env), "reward_manager", None)
+        active_terms = list(getattr(reward_manager, "active_terms", []) or [])
+        num_critic_heads = len(active_terms) if (use_mh and len(active_terms) > 1) else 1
+        critic: MLPModel = critic_class(obs, cfg["obs_groups"], "critic", num_critic_heads, **cfg["critic"]).to(device)
+        print(f"[PPO_IL] Critic with {num_critic_heads} value head(s)")
+        if num_critic_heads > 1:
+            print(f"Multi-head critic: {num_critic_heads} reward components -> {active_terms}")
 
         # Initialize the storage
-        storage = RolloutStorage("rl", env.num_envs, cfg["num_steps_per_env"], obs, [env.num_actions], device)
+        storage = RolloutStorage(
+            "rl", env.num_envs, cfg["num_steps_per_env"], obs, [env.num_actions], device,
+            num_reward_components=num_critic_heads,
+        )
 
         # Extract IL config
         alg_cfg = cfg["algorithm"].copy()
